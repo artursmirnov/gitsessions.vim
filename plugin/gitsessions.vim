@@ -50,7 +50,7 @@ function! s:trim(string)
 endfunction
 
 function! s:git_branch_name()
-    return s:replace_bad_chars(s:trim(system("\git rev-parse --abbrev-ref HEAD")))
+    return s:replace_bad_chars(s:trim(system("\git symbolic-ref --short HEAD")))
 endfunction
 
 function! s:in_git_repo()
