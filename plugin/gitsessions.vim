@@ -145,11 +145,13 @@ function! g:GitSessionSave()
     endif
 
     let s:session_exist = 1
+    let lines = []
+    call xolox#session#save_session(lines, l:file)
     if filereadable(l:file)
-        execute 'mksession!' l:file
+        call writefile(lines, l:file)
         echom "session updated:" l:file
     else
-        execute 'mksession!' l:file
+        call writefile(lines, l:file, "s")
         echom "session saved:" l:file
     endif
     redrawstatus!
@@ -160,7 +162,9 @@ function! g:GitSessionUpdate(...)
     let l:file = s:session_file(0)
 
     if s:session_exist && filereadable(l:file)
-        execute 'mksession!' l:file
+        let lines = []
+        call xolox#session#save_session(lines, l:file)
+        call writefile(lines, l:file)
         if l:show_msg
             echom "session updated:" l:file
         endif
