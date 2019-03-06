@@ -198,9 +198,8 @@ function! g:GitSessionLoad(...)
     let l:show_msg = a:0 > 0 ? a:1 : 0
     let l:file = s:session_file(1)
 
-    call s:undo_dir()
-
     if filereadable(l:file)
+        call s:undo_dir()
         let s:session_exist = 1
         execute 'source' l:file
         echom "session loaded:" l:file
