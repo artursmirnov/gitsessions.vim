@@ -25,6 +25,12 @@ else
     let g:gitsessions_dir = s:rtrim_slashes(g:gitsessions_dir)
 endif
 
+if !exists('g:gitsessions_addressed_path')
+  let g:gitsessions_addressed_path = 1
+else
+  let g:gitsessions_addressed_path = g:gitsessions_addressed_path
+endif
+
 " Cache session file
 " Pros: performance gain (x100) on large repositories
 " Cons: switch between git branches will be missed from GitSessionUpdate()
@@ -95,7 +101,7 @@ function! s:find_project_dir(dir)
 endfunction
 
 function! s:session_path(sdir, pdir)
-    let l:path = a:sdir . a:pdir
+    let l:path = a:sdir . (g:gitsessions_addressed_path ? a:pdir : '')
     return s:is_abs_path(a:sdir) ? l:path : g:VIMFILESDIR . l:path
 endfunction
 
@@ -120,6 +126,16 @@ function! s:session_file(invalidate_cache)
     return s:cached_session_file
 endfunction
 
+function! s:undo_dir()
+    if exists('g:gitsessions_undo_dir') && g:gitsessions_undo_dir != 0
+      if !isdirectory(g:gitsessions_undo_dir)
+        call mkdir(g:gitsessions_undo_dir)
+      endif
+      execute 'set undodir='.resolve(g:gitsessions_undo_dir)
+      set undofile
+    endif
+endfunction
+
 " PUBLIC FUNCTIONS
 
 function! g:GitSessionSave()
@@ -130,7 +146,7 @@ function! g:GitSessionSave()
     let l:dir = s:session_dir()
     let l:file = s:session_file(1)
 
-    if !isdirectory(l:dir)
+    if !empty(l:dir) && !isdirectory(l:dir)
         call mkdir(l:dir, 'p')
 
         if !isdirectory(l:dir)
@@ -146,6 +162,8 @@ function! g:GitSessionSave()
 
     let s:session_exist = 1
     let lines = []
+
+    call s:undo_dir()
     call xolox#session#save_session(lines, l:file)
     if filereadable(l:file)
         call writefile(lines, l:file)
@@ -161,6 +179,7 @@ function! g:GitSessionUpdate(...)
     let l:show_msg = a:0 > 0 ? a:1 : 1
     let l:file = s:session_file(0)
 
+    call s:undo_dir()
     if s:session_exist && filereadable(l:file)
         let lines = []
         call xolox#session#save_session(lines, l:file)
