@@ -27,8 +27,10 @@ endif
 
 if !exists('g:gitsessions_addressed_path')
   let g:gitsessions_addressed_path = 1
-else
-  let g:gitsessions_addressed_path = g:gitsessions_addressed_path
+endif
+
+if !exists('g:gitsessions_reload_vimrc')
+  let g:gitsessions_reload_vimrc = 0
 endif
 
 " Cache session file
@@ -56,7 +58,7 @@ function! s:trim(string)
 endfunction
 
 function! s:git_branch_name()
-    return s:replace_bad_chars(s:trim(system("\git symbolic-ref --short HEAD")))
+    return s:replace_bad_chars(s:trim(system("cd ". g:gitsessions_dir .";\git symbolic-ref --short HEAD;cd -;")))
 endfunction
 
 function! s:in_git_repo()
@@ -202,6 +204,9 @@ function! g:GitSessionLoad(...)
         call s:undo_dir()
         let s:session_exist = 1
         execute 'source' l:file
+        if g:gitsessions_reload_vimrc
+          execute 'source' $MYVIMRC
+        endif
         echom "session loaded:" l:file
     elseif l:show_msg
         echom "session not found:" l:file
