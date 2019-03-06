@@ -179,8 +179,8 @@ function! g:GitSessionUpdate(...)
     let l:show_msg = a:0 > 0 ? a:1 : 1
     let l:file = s:session_file(0)
 
-    call s:undo_dir()
     if s:session_exist && filereadable(l:file)
+        call s:undo_dir()
         let lines = []
         call xolox#session#save_session(lines, l:file)
         call writefile(lines, l:file)
