@@ -127,7 +127,7 @@ function! s:session_file(invalidate_cache)
 endfunction
 
 function! s:undo_dir()
-    if exists('g:gitsessions_undo_dir') && g:gitsessions_undo_dir != 0
+    if exists('g:gitsessions_undo_dir') && g:gitsessions_undo_dir != '0'
       if !isdirectory(g:gitsessions_undo_dir)
         call mkdir(g:gitsessions_undo_dir)
       endif
